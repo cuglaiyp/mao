@@ -28,12 +28,15 @@ const game = new Phaser.Game(config);
 let cat1, cat2, boostButton;
 let moveSpeed = 10; // 每次点击移动的步长
 let catsClose = false; // 标记猫猫是否靠近
-let initialCat1X, initialCat2X;
+let initialCat1Y, initialCat2Y;
 let isMoving = false;
 let lastMoveTime = 0; // 记录最后一次移动的时间
-const idleThreshold = 500; // 设置为2秒
+const idleThreshold = 500; // 设置为0.5秒
 let border;
 let stompClient = null; // WebSocket 客户端
+let player = "来云鹏";
+let leaderboard = {}; // 用于存储实时排行榜
+let leaderboardText;  // 用于显示排行榜的文本对象
 
 function preload() {
     // 加载猫猫的4张奔跑图片
@@ -46,9 +49,6 @@ function preload() {
     this.load.image('cat2_2', 'assets/images/cat2_2.png');
     this.load.image('cat2_3', 'assets/images/cat2_3.png');
     this.load.image('cat2_4', 'assets/images/cat2_4.png');
-
-    // 加载按钮图片
-    this.load.image('button', 'assets/images/boost.png');
 }
 
 function create() {
@@ -57,32 +57,23 @@ function create() {
     // 创建 WebSocket 连接
     connectWebSocket();
 
-    // 获取屏幕的宽高
-    let screenWidth = this.scale.width;
-    let screenHeight = this.scale.height;
-
-    // 设定横向和纵向的偏移量
-    let marginX = 100; // 横向距离边界的固定间距
-    let centerY = screenHeight / 2; // 纵向居中
-
     // 创建猫猫精灵
-    cat1 = this.add.sprite(0, centerY, 'cat1_1').setScale(1);
-    cat2 = this.add.sprite(0, centerY, 'cat2_1').setScale(1);
+    cat1 = this.add.sprite(0, 0, 'cat1_1').setScale(1);
+    cat2 = this.add.sprite(0, 0, 'cat2_1').setScale(1);
 
-    // 等精灵创建后，获取它们的宽度并设置位置
-    cat1.x = marginX + cat1.width / 2;  // 离屏幕左边缘100px
-    cat1.y = centerY;  // 纵向居中
+    // 创建排行榜显示
+    leaderboardText = this.add.text(30, window.innerHeight - 200, '', {
+        font: '20px Arial',
+        fill: '#ffffff',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // 半透明背景
+        padding: {x: 10, y: 10},
+        wordWrap: {width: window.innerWidth / 3, useAdvancedWrap: true}
+    }).setOrigin(0, 1);
 
-    cat2.x = screenWidth - marginX - cat2.width / 2;  // 离屏幕右边缘100px
-    cat2.y = centerY;  // 纵向居中
-
-    // 创建按钮
-    boostButton = this.add.image(this.scale.width / 2, this.scale.height - 50, 'button')
-      .setInteractive()
-      .setScale(10);
+    initStage(this)
 
     // 添加按钮点击事件
-    boostButton.on('pointerdown', () => {
+    this.input.on('pointerdown', () => {
         // 每次点击按钮时触发一次移动
         sendBoostMessage();
     });
@@ -92,8 +83,6 @@ function create() {
         setLayout(this);  // 重新设置布局
     });
 
-    // 创建边框
-    createBorder(this);
 
     // 创建猫猫的奔跑动画
     this.anims.create({
@@ -125,15 +114,44 @@ function create() {
     cat2.setTexture('cat2_1');
 }
 
-// 创建边框
-function createBorder(scene) {
-    // 使用 Graphics 对象来绘制边框
-    border = scene.add.graphics();
-    border.lineStyle(10, 0x8B0000, 1);  // 设置边框的颜色和宽度
-    border.strokeRect(0, 0, scene.scale.width, scene.scale.height);  // 绘制矩形边框
+function initStage(scene) {
+    // 获取屏幕的宽高
+    let screenWidth = scene.scale.width;
+    let screenHeight = scene.scale.height;
+    // 设定横向和纵向的偏移量
+    let marginBorder = 30; // 离边界固定值
+    let centerX = screenWidth / 2; // 横向剧中
+    let bottomY = screenHeight / 3 * 2; // 画布上2/3为游戏界面
+
+    initialCat1Y = marginBorder;
+    initialCat2Y = bottomY - marginBorder;
+
+    // 更新猫猫1和猫猫2的位置
+    fetch('http://localhost:8080/process')  // 获取游戏数据
+        .then(response => response.json())
+        .then(data => {
+            // 等精灵创建后，获取它们的宽度并设置位置
+            cat1.x = centerX;  // 离屏幕边缘100px
+            cat2.x = centerX;  // 离屏幕边缘100px
+
+            let total = initialCat2Y - initialCat1Y;
+            let delta = total / 200 * data.progress
+
+            // 更新猫猫的位置
+            cat1.y = initialCat1Y + delta;
+            cat2.y = initialCat2Y - delta;
+
+            leaderboard = data.player2Score
+
+        })
+        .catch(error => {
+            console.error('获取数据失败:', error);
+        });
 }
 
 function update(time, delta) {
+    // 更新排行榜显示
+    updateLeaderboard();
     // 检查是否超过空闲阈值，若超过则回到第0帧并停止动画
     if (time - lastMoveTime > idleThreshold) {
         cat1.anims.stop();
@@ -144,17 +162,31 @@ function update(time, delta) {
     }
 }
 
-function moveCats(scene) {
+function updateLeaderboard() {
+    // 排序并更新排行榜
+    const sortedLeaderboard = Object.entries(leaderboard)
+        .sort((a, b) => b[1] - a[1]) // 按助力次数降序排序
+        .slice(0, 5); // 只显示前5名
+
+    let leaderboardTextContent = '排行榜：\n';
+    sortedLeaderboard.forEach(([playerName, score], index) => {
+        leaderboardTextContent += `${index + 1}. ${playerName}: ${score} 次\n`;
+    });
+
+    leaderboardText.setText(leaderboardTextContent);  // 更新显示
+}
+
+
+function moveCats(scene, progress) {
+    isMoving = true;
     // 记录最后一次移动时间
     lastMoveTime = scene.time.now;
-
-    // 只有在猫猫未到达目标时才允许移动
-    const cat1Move = moveSpeed;
-    const cat2Move = -moveSpeed;
+    let total = initialCat2Y - initialCat1Y;
+    let delta = total / 200 * progress
 
     // 更新猫猫的位置
-    cat1.x += cat1Move;
-    cat2.x += cat2Move;
+    cat1.y = initialCat1Y + delta;
+    cat2.y = initialCat2Y - delta;
 
     if (!cat1.anims.isPlaying && !cat2.anims.isPlaying) {
         // 播放猫猫的奔跑动画，动画只播放一次
@@ -190,8 +222,8 @@ function checkBounds() {
         // 发生碰撞
         if (!catsClose) {
             catsClose = true;
-            boostButton.setTint(0x808080); // 禁用按钮
-            boostButton.removeInteractive(); // 禁用按钮交互
+            cat1.scene.input.off('pointerdown');
+            cat2.scene.input.off('pointerdown');
             console.log('猫猫碰撞发生！');
         }
     }
@@ -208,37 +240,6 @@ function resize() {
 
 // 更新布局函数
 function setLayout(scene) {
-    // 获取屏幕的宽高
-    const screenWidth = scene.scale.width;
-    const screenHeight = scene.scale.height;
-
-    // 设定横向和纵向的偏移量
-    const marginX = 100; // 横向距离边界的固定间距
-    const centerY = screenHeight / 2; // 纵向居中
-
-    // 更新猫猫1和猫猫2的位置
-    if (cat1) {
-        cat1.setPosition(marginX + cat1.width / 2, centerY);  // 离左边界100px
-    }
-
-    if (cat2) {
-        cat2.setPosition(screenWidth - marginX - cat2.width / 2, centerY);  // 离右边界100px
-    }
-
-    // 更新边框的位置和大小
-    if (border) {
-        // 清除旧的边框
-        border.clear();
-
-        // 绘制新的边框
-        border.lineStyle(10, 0x8B0000, 1);  // 重新设置颜色和宽度
-        border.strokeRect(0, 0, scene.scale.width, scene.scale.height);  // 绘制新的边框
-    }
-
-    // 更新按钮的位置
-    if (boostButton) {
-        boostButton.setPosition(screenWidth / 2, screenHeight - 50);  // 位于底部居中
-    }
 }
 
 // 创建 WebSocket 连接
@@ -251,23 +252,18 @@ function connectWebSocket() {
 // WebSocket 连接成功后的回调
 function onConnect() {
     console.log('WebSocket 连接成功');
-    stompClient.subscribe('/topic/game', function (message) {
-        const gameProgress = JSON.parse(message.body);
-        // 监听后端发送的消息，触发猫猫移动
-        moveCats(game.scene.scenes[0]);
 
+    stompClient.subscribe('/topic/game', function (message) {
+        let body = JSON.parse(message.body);
+        leaderboard = body.player2Score
+        // 监听后端发送的消息，触发猫猫移动
+        moveCats(game.scene.scenes[0], body.progress);
     });
 }
-
-let player = "来云鹏";
-let boostCount = 1;
 
 // 向后端发送 boost 消息
 function sendBoostMessage() {
     if (stompClient) {
-        stompClient.send('/app/boost', {}, JSON.stringify({
-            player: player,
-            boostCount: boostCount
-        }));
+        stompClient.send('/app/boost', {}, player);
     }
 }
