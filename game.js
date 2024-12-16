@@ -32,7 +32,8 @@ let initialCat1X, initialCat2X;
 let isMoving = false;
 let lastMoveTime = 0; // 记录最后一次移动的时间
 const idleThreshold = 500; // 设置为2秒
-let border
+let border;
+let stompClient = null; // WebSocket 客户端
 
 function preload() {
     // 加载猫猫的4张奔跑图片
@@ -52,6 +53,10 @@ function preload() {
 
 function create() {
     setLayout(this);
+
+    // 创建 WebSocket 连接
+    connectWebSocket();
+
     // 获取屏幕的宽高
     let screenWidth = this.scale.width;
     let screenHeight = this.scale.height;
@@ -61,8 +66,8 @@ function create() {
     let centerY = screenHeight / 2; // 纵向居中
 
     // 创建猫猫精灵
-    cat1 = this.add.sprite(0, centerY, 'cat1_1').setScale(0.5);
-    cat2 = this.add.sprite(0, centerY, 'cat2_1').setScale(0.5);
+    cat1 = this.add.sprite(0, centerY, 'cat1_1').setScale(1);
+    cat2 = this.add.sprite(0, centerY, 'cat2_1').setScale(1);
 
     // 等精灵创建后，获取它们的宽度并设置位置
     cat1.x = marginX + cat1.width / 2;  // 离屏幕左边缘100px
@@ -71,21 +76,15 @@ function create() {
     cat2.x = screenWidth - marginX - cat2.width / 2;  // 离屏幕右边缘100px
     cat2.y = centerY;  // 纵向居中
 
-
-    // 创建一个按钮背景（带圆角和阴影）
-    const button = this.add.graphics();
-    button.fillStyle(0x4CAF50, 1); // 设置按钮背景色（绿色）
-    button.fillRoundedRect(screenWidth / 2 - 150, screenHeight - 100, 300, 60, 30); // 绘制带圆角的矩形
-
     // 创建按钮
     boostButton = this.add.image(this.scale.width / 2, this.scale.height - 50, 'button')
-        .setInteractive()
-        .setScale(0.5);
+      .setInteractive()
+      .setScale(10);
 
     // 添加按钮点击事件
     boostButton.on('pointerdown', () => {
         // 每次点击按钮时触发一次移动
-        moveCats(this);
+        sendBoostMessage();
     });
 
     // 监听窗口尺寸变化
@@ -142,7 +141,6 @@ function update(time, delta) {
         // 如果猫猫静止太久，切换回第0帧并停止动画
         cat1.setTexture('cat1_1'); // 停止动画，恢复静止状态
         cat2.setTexture('cat2_1'); // 停止动画，恢复静止状态
-
     }
 }
 
@@ -199,7 +197,6 @@ function checkBounds() {
     }
 }
 
-
 // 空的 resize 方法
 function resize() {
     // 更新画布大小
@@ -241,5 +238,36 @@ function setLayout(scene) {
     // 更新按钮的位置
     if (boostButton) {
         boostButton.setPosition(screenWidth / 2, screenHeight - 50);  // 位于底部居中
+    }
+}
+
+// 创建 WebSocket 连接
+function connectWebSocket() {
+    const socket = new SockJS('http://localhost:8080/game'); // 连接到Spring Boot的WebSocket服务端
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, onConnect);
+}
+
+// WebSocket 连接成功后的回调
+function onConnect() {
+    console.log('WebSocket 连接成功');
+    stompClient.subscribe('/topic/game', function (message) {
+        const gameProgress = JSON.parse(message.body);
+        // 监听后端发送的消息，触发猫猫移动
+        moveCats(game.scene.scenes[0]);
+
+    });
+}
+
+let player = "来云鹏";
+let boostCount = 1;
+
+// 向后端发送 boost 消息
+function sendBoostMessage() {
+    if (stompClient) {
+        stompClient.send('/app/boost', {}, JSON.stringify({
+            player: player,
+            boostCount: boostCount
+        }));
     }
 }
