@@ -1,24 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>助力猫猫游戏</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>输入用户名</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
-<script src="./assets/lib/sockjs.min.js"></script>
-<script src="./assets/lib/stomp.min.js"></script>
-<script src="game.js"></script>
+<div class="container">
+  <h1>请输入用户名</h1>
+  <input type="text" id="username" placeholder="请输入用户名" required />
+  <button id="submitBtn">提交</button>
+</div>
+
+<script>
+  // 获取元素
+  const submitBtn = document.getElementById('submitBtn');
+  const usernameInput = document.getElementById('username');
+
+  // 监听按钮点击事件
+  submitBtn.addEventListener('click', function() {
+    const username = usernameInput.value.trim();
+    if (username) {
+      // 如果用户名不为空，则跳转到猫猫页面并传递用户名
+      localStorage.setItem('username', username); // 将用户名保存在localStorage中
+      window.location.href = 'catPage.html'; // 跳转到猫猫页面
+    } else {
+      alert('请输入用户名');
+    }
+  });
+</script>
 </body>
 </html>
