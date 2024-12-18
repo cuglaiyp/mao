@@ -268,3 +268,6 @@
 //         stompClient.send('/app/boost', {}, JSON.stringify({}));
 //     }
 // }
+
+<link href="./assets/lib/bootstrap.min.css" />
+<script src="./assets/lib/qrcode.min.js"></script>

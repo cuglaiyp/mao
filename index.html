@@ -3,84 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>输入用户名</title>
-  <!-- 引入Bootstrap的CSS -->
-  <link href="./assets/lib/bootstrap.min.css" rel="stylesheet">
+  <title>二维码展示</title>
+  <!-- 引入 Bootstrap 样式 -->
+  <link href="./assets/lib/bootstrap.min.css" />
+  <script src="./assets/lib/qrcode.min.js"></script>
   <style>
-    /* 居中对齐容器 */
-    body, html {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f8f9fa;
-    }
+      body {
+          background-color: #e0e1e2; /* 背景色 */
+          height: 100vh; /* 设置页面高度为100% */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
 
-    .input-container {
-      display: flex;
-      align-items: stretch; /* 使按钮和输入框等高 */
-      width: 100%;
-      max-width: 400px;
-    }
+      .container {
+          text-align: center;
+          background-color: #fff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
 
-    .input-container input {
-      flex: 1; /* 输入框占满可用空间 */
-      padding: 10px 15px;
-      font-size: 16px;
-      border-radius: 5px 0 0 5px; /* 圆角处理 */
-      border: 1px solid #ccc;
-    }
+      h1 {
+          font-size: 2rem;
+          margin-bottom: 20px;
+      }
 
-    .input-container button {
-      width: 50px; /* 设置按钮为方形 */
-      height: 50px; /* 保证按钮的高度与输入框一致 */
-      background-color: #6c757d; /* 灰色按钮 */
-      color: white;
-      border: 1px solid #ccc;
-      border-left: none; /* 去除左边边框，避免重复边框 */
-      border-radius: 0 5px 5px 0; /* 圆角处理 */
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px; /* 字体稍大 */
-    }
+      p {
+          margin-bottom: 20px;
+      }
 
-    .input-container button:hover {
-      background-color: #5a6268; /* 按钮悬停效果 */
-    }
-
-    .input-container input:focus,
-    .input-container button:focus {
-      outline: none; /* 移除聚焦时的蓝色边框 */
-      box-shadow: none;
-    }
+      #qrcode-img {
+          max-width: 100%;
+          margin-top: 20px;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 10px;
+          background-color: #f8f9fa;
+      }
   </style>
 </head>
 <body>
+<div class="container text-center">
+  <h1>扫码跳转页面</h1>
+  <p>请扫描下面的二维码跳转到指定的页面。</p>
+  <!-- 展示二维码 -->
+  <img id="qrcode-img" alt="二维码" />
 
-<div class="input-container">
-  <input type="text" id="username" class="form-control" placeholder="请输入姓名" required />
-  <button id="submitBtn">→</button>
 </div>
 
 <script>
-  // 获取元素
-  const submitBtn = document.getElementById('submitBtn');
-  const usernameInput = document.getElementById('username');
+  // 设置二维码内容为跳转链接
+  var url = 'https://www.example.com'; // 替换成您想跳转的URL
 
-  // 监听按钮点击事件
-  submitBtn.addEventListener('click', function() {
-    const username = usernameInput.value.trim();
-    if (username) {
-      // 如果用户名不为空，则跳转到猫猫页面并传递用户名
-      localStorage.setItem('username', username); // 将用户名保存在localStorage中
-      window.location.href = 'catPage.html'; // 跳转到猫猫页面
+  // 生成二维码并将其作为图片展示
+  QRCode.toDataURL(url, function(error, url) {
+    if (error) {
+      console.error(error);
     } else {
-      alert('请输入姓名');
+      document.getElementById('qrcode-img').src = url;
     }
   });
+</script>
+
 </script>
 </body>
 </html>
