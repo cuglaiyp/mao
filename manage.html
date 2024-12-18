@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作按钮</title>
+    <style>
+        /* 居中布局 */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* 页面背景色 */
+        }
+        .button-container {
+            text-align: center;
+        }
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50; /* 按钮背景色 */
+            color: white; /* 按钮文字颜色 */
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049; /* 按钮悬停时的背景色 */
+        }
+    </style>
+</head>
+<body>
+
+<div class="button-container">
+    <button id="resetBtn">重置</button>
+    <button id="startBtn">开始</button>
+</div>
+
+<script>
+    // 获取按钮元素
+    const resetBtn = document.getElementById('resetBtn');
+    const startBtn = document.getElementById('startBtn');
+
+    // 重置按钮点击事件
+    resetBtn.addEventListener('click', () => {
+        fetch('/api/reset', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('重置成功');
+                    alert('重置成功');
+                } else {
+                    throw new Error('重置失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('重置失败');
+            });
+    });
+
+    // 开始按钮点击事件
+    startBtn.addEventListener('click', () => {
+        fetch('/api/start', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('开始成功');
+                    alert('开始成功');
+                } else {
+                    throw new Error('开始失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('开始失败');
+            });
+    });
+</script>
+
+</body>
+</html>

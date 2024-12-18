@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二维码展示</title>
+  <!-- 引入 Bootstrap 样式 -->
+  <link href="./assets/lib/bootstrap.min.css" />
+  <script src="./assets/lib/qrcode.min.js"></script>
+  <style>
+      body {
+          background-color: #e0e1e2; /* 背景色 */
+          height: 100vh; /* 设置页面高度为100% */
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+
+      .container {
+          text-align: center;
+          background-color: #fff;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+          font-size: 2rem;
+          margin-bottom: 20px;
+      }
+
+      p {
+          margin-bottom: 20px;
+      }
+
+      #qrcode-img {
+          max-width: 100%;
+          margin-top: 20px;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 10px;
+          background-color: #f8f9fa;
+      }
+  </style>
+</head>
+<body>
+<div class="container text-center">
+  <h1>扫码跳转页面</h1>
+  <p>请扫描下面的二维码跳转到指定的页面。</p>
+  <!-- 展示二维码 -->
+  <img id="qrcode-img" alt="二维码" />
+
+</div>
+
+<script>
+  // 设置二维码内容为跳转链接
+  var url = 'http://8.156.69.47'; // 替换成您想跳转的URL
+
+  // 生成二维码并将其作为图片展示
+  QRCode.toDataURL(url, function(error, url) {
+    if (error) {
+      console.error(error);
+    } else {
+      document.getElementById('qrcode-img').src = url;
+    }
+  });
+</script>
+
+</script>
+</body>
+</html>
