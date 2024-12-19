@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>操作按钮</title>
-    <style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>管理页面</title>
+	<style>
         /* 居中布局 */
         body {
             display: flex;
@@ -31,63 +31,102 @@
         button:hover {
             background-color: #45a049; /* 按钮悬停时的背景色 */
         }
-    </style>
+
+        /* 调整后的 Toast 样式 */
+        .toast {
+            visibility: hidden;
+            min-width: 200px;
+            margin-left: -100px;
+            background-color: #d9534f; /* 红色背景 */
+            color: #fff;
+            text-align: center;
+            border-radius: 20px; /* 圆角 */
+            padding: 8px 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 14px; /* 更小的字体 */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* 显示 Toast */
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+	</style>
 </head>
 <body>
 
 <div class="button-container">
-    <button id="resetBtn">重置</button>
-    <button id="startBtn">开始</button>
+	<button id="resetBtn">重置</button>
+	<button id="startBtn">开始</button>
 </div>
+
+<!-- Toast 提示框 -->
+<div id="toast" class="toast"></div>
+
 <script src="config.js"></script>
 <script>
-    // 获取按钮元素
-    const resetBtn = document.getElementById('resetBtn');
-    const startBtn = document.getElementById('startBtn');
+	// 获取按钮元素和 Toast 元素
+	const resetBtn = document.getElementById('resetBtn');
+	const startBtn = document.getElementById('startBtn');
+	const toast = document.getElementById('toast');
 
-    // 重置按钮点击事件
-    resetBtn.addEventListener('click', () => {
-        fetch(`${CONFIG.DOMAIN_PREFIX}/reset`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    console.log('重置成功');
-                    alert('重置成功');
-                } else {
-                    throw new Error('重置失败');
-                }
-            })
-            .catch(error => {
-                console.error('错误:', error);
-                alert('重置失败');
-            });
-    });
+	// 显示 Toast 的函数
+	function showToast(message) {
+		toast.textContent = message;
+		toast.classList.add('show');
+		setTimeout(() => {
+			toast.classList.remove('show');
+		}, 1000); // 3秒后自动消失
+	}
 
-    // 开始按钮点击事件
-    startBtn.addEventListener('click', () => {
-        fetch(`${CONFIG.DOMAIN_PREFIX}/start`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    console.log('开始成功');
-                    alert('开始成功');
-                } else {
-                    throw new Error('开始失败');
-                }
-            })
-            .catch(error => {
-                console.error('错误:', error);
-                alert('开始失败');
-            });
-    });
+	// 重置按钮点击事件
+	resetBtn.addEventListener('click', () => {
+		fetch(`${CONFIG.DOMAIN_PREFIX}/reset`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(response => {
+				if (response.ok) {
+					console.log('重置成功');
+					showToast('重置成功');
+				} else {
+					throw new Error('重置失败');
+				}
+			})
+			.catch(error => {
+				console.error('错误:', error);
+				showToast('重置失败');
+			});
+	});
+
+	// 开始按钮点击事件
+	startBtn.addEventListener('click', () => {
+		fetch(`${CONFIG.DOMAIN_PREFIX}/start`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		})
+			.then(response => {
+				if (response.ok) {
+					console.log('开始成功');
+					showToast('开始成功');
+				} else {
+					throw new Error('开始失败');
+				}
+			})
+			.catch(error => {
+				console.error('错误:', error);
+				showToast('开始失败');
+			});
+	});
 </script>
 
 </body>
