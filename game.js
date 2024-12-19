@@ -3,30 +3,30 @@ const urlPrefix = `${CONFIG.DOMAIN_PREFIX}`;
 class GameScene extends Phaser.Scene {
 	constructor() {
 		super({ key: 'GameScene' });
+		this.status = 0; // 0未开始，1开始，2结束
+		this.stompClient = null;
+
 		this.cat1 = null;
 		this.cat2 = null;
-		this.moveSpeed = 10;
-		this.isMoving = false;
-		this.lastMoveTime = 0;
-		this.idleThreshold = 500; // 设置为0.5秒
-		this.stompClient = null;
-		this.player = localStorage.getItem('username');
-		this.leaderboard = {};
-		this.leaderboardText = null;
-		this.playerCntText = null;
-		this.status = 0;
-		this.playerCnt = 0;
 		this.initialCat1Y = 0;
 		this.initialCat2Y = 0;
 		this.initialCat1X = 0;
 		this.initialCat2x = 0;
-		this.blessButton = null;  // 用来存储按钮对象
-		this.leaderboardContainer = null;  // 存储排行榜容器
-		this.playerCntContainer = null;  // 存储用户点击次数容器
+		this.isMoving = false;
 		this.progress = 0;
-		this.canUpdateLeaderBoard = false;
 		this.targetCat1Y = 0;
 		this.targetCat2Y = 0;
+
+		this.player = localStorage.getItem('username');
+		this.playerCnt = 0;
+		this.playerCntContainer = null;  // 存储用户点击次数容器
+		this.canUpdateLeaderBoard = false;
+		this.leaderboard = {};
+		this.leaderboardContainer = null;  // 存储排行榜容器
+		this.blessButton = null;  // 用来存储按钮对象
+		this.canUpdateOnlineCnt = false;
+		this.onlineCnt = 0;
+		this.onlineCntContainer = null;
 	}
 
 	preload() {
@@ -48,6 +48,7 @@ class GameScene extends Phaser.Scene {
 		this.createLeaderboard();
 		this.createPlayerCnt();
 		this.createBlessButton();
+		this.createOnlineCnt();
 
 		// 监听窗口尺寸变化
 		this.scale.on('resize', () => {
@@ -90,13 +91,17 @@ class GameScene extends Phaser.Scene {
 
 		fetch(urlPrefix + '/init')
 			.then(response => response.json())
-			.then(gameStage => {
-				this.inProgressCats(gameStage.progress);
-				this.leaderboard = gameStage.player2Score;
-				this.playerCnt = this.leaderboard[this.player];
-				this.status = gameStage.status;
+			.then(res => {
+				let gameInfo = res['gameInfo'];
+				let sceneInfo = res['sceneInfo'];
+				this.inProgressCats(gameInfo.progress);
+				this.leaderboard = gameInfo.player2Score;
+				this.playerCnt = this.leaderboard[this.player] || 0;
+				this.status = sceneInfo.status;
+				this.onlineCnt = sceneInfo.onlineCnt;
 				this.updateLeaderboard();
 				this.updatePlayerCntText();
+				this.updateOnlineCntText();
 				this.resolvePointerEvent();
 			})
 			.catch(error => console.error('获取数据失败:', error));
@@ -107,6 +112,10 @@ class GameScene extends Phaser.Scene {
 			this.updateLeaderboard();
 			this.updatePlayerCntText();
 			this.canUpdateLeaderBoard = false;
+		}
+		if (this.canUpdateOnlineCnt) {
+			this.updateOnlineCntText();
+			this.canUpdateOnlineCnt = false;
 		}
 
 		if (!this.isMoving) {
@@ -156,6 +165,10 @@ class GameScene extends Phaser.Scene {
 
 	updatePlayerCntText() {
 		this.playerCntContainer.querySelector('div').innerText = `${this.player}: ${this.playerCnt} 次`;
+	}
+
+	updateOnlineCntText() {
+		this.onlineCntContainer.querySelector('div').innerText = `在线人数: ${this.playerCnt}`;
 	}
 
 	inProgressCats(progress) {
@@ -216,20 +229,24 @@ class GameScene extends Phaser.Scene {
 		console.log('WebSocket 连接成功');
 
 		this.stompClient.subscribe('/topic/game', (message) => {
-			let gameStage = JSON.parse(message.body);
-			this.leaderboard = gameStage.player2Score;
-			this.playerCnt = gameStage.player2Score[this.player] || 0;
-			this.moveCats(gameStage.progress);
+			let gameInfo = JSON.parse(message.body);
+			this.leaderboard = gameInfo.player2Score;
+			this.playerCnt = gameInfo.player2Score[this.player] || 0;
+			this.moveCats(gameInfo.progress);
 		});
 
 		this.stompClient.subscribe('/topic/ctrl', (message) => {
-			let gameStage = JSON.parse(message.body);
-			this.status = gameStage.status;
+			let sceneInfo = JSON.parse(message.body);
+			this.status = sceneInfo.status;
+			if (this.onlineCnt != sceneInfo.onlineCnt) {
+				this.onlineCnt = sceneInfo.onlineCnt;
+				this.canUpdateOnlineCnt = true;
+			}
 			this.resolvePointerEvent();
 			switch (this.status) {
 				case 0:
 					// 各项元素归位
-					this.resetCats(gameStage.progress);
+					this.resetCats();
 					// 排行榜变动，刷新排行榜
 					this.leaderboard = {};
 					this.canUpdateLeaderBoard = true;
@@ -346,6 +363,27 @@ class GameScene extends Phaser.Scene {
 		// 添加到页面中
 		document.body.appendChild(playerCntContainer);
 		this.playerCntContainer = playerCntContainer;
+	}
+
+	// 创建用户点击次数显示
+	createOnlineCnt() {
+		const onlineCntContainer = document.createElement('div');
+		onlineCntContainer.classList.add('online-cnt-container');
+		onlineCntContainer.style.position = 'absolute';
+		onlineCntContainer.style.top = '20px';
+		onlineCntContainer.style.left = '20px';
+		onlineCntContainer.style.backgroundColor = '#e0e1e2';
+		onlineCntContainer.style.padding = '10px';
+		onlineCntContainer.style.fontSize = '16px';
+
+		// 创建玩家点击次数显示
+		const onlineCntText = document.createElement('div');
+		onlineCntText.innerText = `在线人数: 0`;
+		onlineCntContainer.appendChild(onlineCntText);
+
+		// 添加到页面中
+		document.body.appendChild(onlineCntContainer);
+		this.onlineCntContainer = onlineCntContainer;
 	}
 
 	createBlessButton() {
