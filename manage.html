@@ -39,7 +39,7 @@
     <button id="resetBtn">重置</button>
     <button id="startBtn">开始</button>
 </div>
-
+<script src="config.js"></script>
 <script>
     // 获取按钮元素
     const resetBtn = document.getElementById('resetBtn');
@@ -47,7 +47,7 @@
 
     // 重置按钮点击事件
     resetBtn.addEventListener('click', () => {
-        fetch('/api/reset', {
+        fetch(`${CONFIG.DOMAIN_PREFIX}/reset`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -69,7 +69,7 @@
 
     // 开始按钮点击事件
     startBtn.addEventListener('click', () => {
-        fetch('/api/start', {
+        fetch(`${CONFIG.DOMAIN_PREFIX}/start`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

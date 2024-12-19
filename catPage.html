@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>助力猫猫游戏</title>
 	<link href="./assets/lib/bootstrap.min.css" rel="stylesheet">
 	<style>
@@ -22,8 +22,12 @@
             width: auto; /* 根据内容自动适应宽度 */
             /*padding: 10px 20px; !* 添加内边距，让内容更清晰 *!*/
         }
+		button {
+			touch-action: manipulation;
+		}
 
-        /* 设置按钮样式 */
+
+		/* 设置按钮样式 */
         /*.btn-light {*/
         /*    background-color: #cc3333; !* 浅灰色背景 *!*/
         /*    border: 1px solid #cc3333; !* 浅灰色边框 *!*/

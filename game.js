@@ -347,7 +347,8 @@ class GameScene extends Phaser.Scene {
         document.body.appendChild(button);
 
         // 给按钮添加点击事件
-        button.addEventListener('click', () => {
+        button.addEventListener('click', event => {
+            event.preventDefault(); // 阻止默认的事件行为
             this.sendBoostMessage();
             this.showPlusOneAnimation(button);
         });
