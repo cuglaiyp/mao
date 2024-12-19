@@ -168,7 +168,7 @@ class GameScene extends Phaser.Scene {
 	}
 
 	updateOnlineCntText() {
-		this.onlineCntContainer.querySelector('div').innerText = `在线人数: ${this.playerCnt}`;
+		this.onlineCntContainer.querySelector('div').innerText = `在线人数: ${this.onlineCnt}`;
 	}
 
 	inProgressCats(progress) {
@@ -238,7 +238,7 @@ class GameScene extends Phaser.Scene {
 		this.stompClient.subscribe('/topic/ctrl', (message) => {
 			let sceneInfo = JSON.parse(message.body);
 			this.status = sceneInfo.status;
-			if (this.onlineCnt != sceneInfo.onlineCnt) {
+			if (this.onlineCnt !== sceneInfo.onlineCnt) {
 				this.onlineCnt = sceneInfo.onlineCnt;
 				this.canUpdateOnlineCnt = true;
 			}
