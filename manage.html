@@ -86,7 +86,7 @@
 
 	// 重置按钮点击事件
 	resetBtn.addEventListener('click', () => {
-		fetch(`${CONFIG.DOMAIN_PREFIX}/reset`, {
+		fetch(`${CONFIG.HTTP_PREFIX}/reset`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
@@ -108,7 +108,7 @@
 
 	// 开始按钮点击事件
 	startBtn.addEventListener('click', () => {
-		fetch(`${CONFIG.DOMAIN_PREFIX}/start`, {
+		fetch(`${CONFIG.HTTP_PREFIX}/start`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json'
