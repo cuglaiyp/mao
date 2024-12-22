@@ -108,6 +108,8 @@ class GameScene extends Phaser.Scene {
                 this.updatePlayerCntText();
                 this.updateOnlineCntText();
                 this.resolvePointerEvent();
+                this.resolveFuCard();
+
             })
             .catch(error => console.error('获取数据失败:', error));
     }
@@ -266,6 +268,7 @@ class GameScene extends Phaser.Scene {
                         // 关闭刷新排行榜
                         // this.canUpdateLeaderBoard = false;
                         // 结束动画
+                        this.resolveFuCard();
                         break;
                 }
             }
@@ -337,6 +340,12 @@ class GameScene extends Phaser.Scene {
             this.blessButton.disabled = false;
         } else {
             this.blessButton.disabled = true;
+        }
+    }
+
+    resolveFuCard() {
+        if (this.status === 2) {
+            this.createFuCard();
         }
     }
 
@@ -514,6 +523,66 @@ class GameScene extends Phaser.Scene {
         setTimeout(() => {
             plusOne.remove();
         }, 1000);  // 与动画时间一致，1秒后移除
+    }
+
+    createFuCard() {
+        // 创建外层容器 div
+        const imageWrapper = document.createElement('div');
+        imageWrapper.id = 'imageWrapper';
+        imageWrapper.classList.add('image-wrapper');
+
+        // 创建 img 标签
+        const img = document.createElement('img');
+        img.id = 'card-image';
+        img.src = './assets/images/fuCard.png';
+        img.alt = '祝福图片';
+
+        // 创建关闭按钮
+        const closeBtn = document.createElement('button');
+        closeBtn.classList.add('close-btn');
+        closeBtn.textContent = '×';
+        closeBtn.onclick = closeImage; // 关闭按钮点击时调用 closeImage 函数
+
+        // 创建祝福文字 div
+        const textGreeting = document.createElement('div');
+        textGreeting.classList.add('text-greeting');
+        textGreeting.textContent = '祝您';
+
+        const textWish = document.createElement('div');
+        textWish.classList.add('text-wish');
+        textWish.innerHTML = '身体健康';
+
+        // 将所有元素添加到父容器中
+        imageWrapper.appendChild(img);
+        imageWrapper.appendChild(closeBtn);
+        imageWrapper.appendChild(textGreeting);
+        imageWrapper.appendChild(textWish);
+        // 设置图片的宽度为视口宽度的60%
+        // 设置图片的宽高
+        const imgWidth = this.scale.width * 0.4;
+        // 计算图片的高度，保持图片的宽高比例
+        const imgHeight = imgWidth * (img.naturalHeight / img.naturalWidth);
+        // 设置图片的宽高
+        img.style.width = `${imgWidth}px`;
+        img.style.height = `${imgHeight}px`;
+
+        // 外围容器的宽度比图片多5px，高度与图片一致
+        imageWrapper.style.width = `${imgWidth + 40}px`;
+        imageWrapper.style.height = `${imgHeight}px`;
+
+        // 将父容器添加到页面中（例如添加到 body 中）
+        document.body.appendChild(imageWrapper);
+
+
+        // 关闭图片的函数
+        function closeImage() {
+            const imageWrapper = document.querySelector('.image-wrapper');
+            imageWrapper.classList.add('close');
+            setTimeout(() => {
+                // 从 DOM 中移除整个 .image-wrapper 元素
+                document.body.removeChild(imageWrapper);
+            }, 500); // 等待动画完成后移除
+        }
     }
 
 
