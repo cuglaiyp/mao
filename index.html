@@ -107,7 +107,7 @@
 
                 if (result.status === 200 && responseData.code === 0) {
                     // 名称合法，跳转到猫猫页面
-                    localStorage.setItem('username', username); // 将用户名保存在localStorage中
+                    localStorage.setItem('maoUsername', username); // 将用户名保存在localStorage中
                     window.location.href = 'catPage.html'; // 跳转到猫猫页面
                 } else {
                     // 名称非法，显示错误信息

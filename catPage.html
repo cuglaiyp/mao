@@ -37,13 +37,16 @@
 			overflow: hidden;
 			opacity: 0;  /* 初始隐藏 */
 			animation: popIn 3s ease-out forwards;  /* 弹出动画，增加动画时长 */
+            -webkit-transform-origin: center;
+            -webkit-transform-style: preserve-3d;
+            -webkit-perspective: 1000px;
+            -webkit-transform: translateZ(0); /* 为 Safari 强制启用硬件加速 */
 		}
 
 		/* 图片样式 */
 		#card-image {
 			display: block;
 			object-fit: contain; /* 保持图片比例，避免拉伸 */
-			width: 60%; /* 根据需要设置宽度 */
 			height: auto; /* 高度按比例自动调整 */
 			margin: 0 auto; /* 横向居中 */
 		}

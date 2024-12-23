@@ -32,6 +32,18 @@
             background-color: #45a049; /* 按钮悬停时的背景色 */
         }
 
+        /* 文本区域样式 */
+        textarea {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px;
+            width: 300px;
+            height: 150px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical; /* 可调整高度 */
+        }
+
         /* 调整后的 Toast 样式 */
         .toast {
             visibility: hidden;
@@ -63,6 +75,12 @@
 <div class="button-container">
 	<button id="resetBtn">重置</button>
 	<button id="startBtn">开始</button>
+
+	<!-- 新增文本区域和提交按钮 -->
+	<div>
+		<textarea id="textArea" placeholder="支持自定义喜气词..."></textarea>
+		<button id="submitBtn">提交</button>
+	</div>
 </div>
 
 <!-- Toast 提示框 -->
@@ -73,6 +91,8 @@
 	// 获取按钮元素和 Toast 元素
 	const resetBtn = document.getElementById('resetBtn');
 	const startBtn = document.getElementById('startBtn');
+	const submitBtn = document.getElementById('submitBtn'); // 提交按钮
+	const textArea = document.getElementById('textArea'); // 文本区域
 	const toast = document.getElementById('toast');
 
 	// 显示 Toast 的函数
@@ -125,6 +145,36 @@
 			.catch(error => {
 				console.error('错误:', error);
 				showToast('开始失败');
+			});
+	});
+
+	// 提交按钮点击事件
+	submitBtn.addEventListener('click', () => {
+		const text = textArea.value.trim();
+		if (!text) {
+			showToast('文本不能为空');
+			return;
+		}
+
+		// 发送 POST 请求
+		fetch(`${CONFIG.HTTP_PREFIX}/updateXiWords`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ text: text })
+		})
+			.then(response => {
+				if (response.ok) {
+					console.log('提交成功');
+					showToast('提交成功');
+				} else {
+					throw new Error('提交失败');
+				}
+			})
+			.catch(error => {
+				console.error('错误:', error);
+				showToast('提交失败');
 			});
 	});
 </script>
