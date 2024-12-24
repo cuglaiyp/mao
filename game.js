@@ -85,6 +85,22 @@ class GameScene extends Phaser.Scene {
 		this.load.image('tie2.png', 'assets/images/tie2.png');
 		this.load.image('tie3.png', 'assets/images/tie3.png');
 		this.load.image('tie4.png', 'assets/images/tie4.png');
+		this.load.image('tie5.png', 'assets/images/tie5.png');
+		this.load.image('tie6.png', 'assets/images/tie6.png');
+		this.load.image('tie7.png', 'assets/images/tie7.png');
+		this.load.image('tie8.png', 'assets/images/tie8.png');
+		this.load.image('tie9.png', 'assets/images/tie9.png');
+		this.load.image('tie10.png', 'assets/images/tie10.png');
+		this.load.image('tie11.png', 'assets/images/tie11.png');
+		this.load.image('tie12.png', 'assets/images/tie12.png');
+		this.load.image('tie13.png', 'assets/images/tie13.png');
+		this.load.image('tie14.png', 'assets/images/tie14.png');
+		this.load.image('tie15.png', 'assets/images/tie15.png');
+		this.load.image('tie16.png', 'assets/images/tie16.png');
+		this.load.image('tie17.png', 'assets/images/tie17.png');
+		this.load.image('tie18.png', 'assets/images/tie18.png');
+		this.load.image('tie19.png', 'assets/images/tie19.png');
+		this.load.image('tie20.png', 'assets/images/tie20.png');
 
 
 	}
@@ -176,50 +192,73 @@ class GameScene extends Phaser.Scene {
 		if (this.status === 2) {
 			this.cat1.destroy();
 			this.cat2.destroy();
-			this.tieCat = this.add.sprite(this.endCatX, this.endCatY, 'tie1');
-			this.anims.create({
-				key: 'tie-play',
-				frames: [
-					{ key: 'tie1.png' },
-					{ key: 'tie2.png' },
-					{ key: 'tie3.png' },
-					{ key: 'tie4.png' }
-				],
-				frameRate: 4,
-				repeat: -1 // 无限循环
-			});
-			this.tieCat.play('tie-play');
-			setTimeout(() => {
-				this.yanhua = this.add.sprite(this.endCatX, this.cat1.y - 150, 'yanhua-1');
+			if (this.tieCat === null) {
+				this.tieCat = this.add.sprite(this.endCatX, this.endCatY, 'tie1');
 				this.anims.create({
-					key: 'yanhua-play',
+					key: 'tie-play',
 					frames: [
-						{ key: 'yanhua-1.png' },
-						{ key: 'yanhua-2.png' },
-						{ key: 'yanhua-3.png' },
-						{ key: 'yanhua-4.png' },
-						{ key: 'yanhua-5.png' },
-						{ key: 'yanhua-6.png' },
-						{ key: 'yanhua-7.png' },
-						{ key: 'yanhua-8.png' },
-						{ key: 'yanhua-9.png' },
-						{ key: 'yanhua-10.png' },
-						{ key: 'yanhua-11.png' },
-						{ key: 'yanhua-12.png' },
-						{ key: 'yanhua-13.png' },
-						{ key: 'yanhua-14.png' }
+						{ key: 'tie1.png' },
+						{ key: 'tie2.png' },
+						{ key: 'tie3.png' },
+						{ key: 'tie4.png' },
+						{ key: 'tie5.png' },
+						{ key: 'tie6.png' },
+						{ key: 'tie7.png' },
+						{ key: 'tie8.png' },
+						{ key: 'tie9.png' },
+						{ key: 'tie10.png' },
+						{ key: 'tie11.png' },
+						{ key: 'tie12.png' },
+						{ key: 'tie13.png' },
+						{ key: 'tie14.png' },
+						{ key: 'tie15.png' },
+						{ key: 'tie16.png' },
+						{ key: 'tie17.png' },
+						{ key: 'tie18.png' },
+						{ key: 'tie19.png' },
+						{ key: 'tie20.png' }
 					],
-					frameRate: 7,
+					frameRate: 10,
 					repeat: -1 // 无限循环
 				});
-				this.yanhua.play('yanhua-play'); // 播放动画
-			}, 1000);
+				this.tieCat.play('tie-play');
+			}
+			if (this.yanhua === null) {
+				setTimeout(() => {
+					this.yanhua = this.add.sprite(this.endCatX, this.cat1.y - 150, 'yanhua-1');
+					this.anims.create({
+						key: 'yanhua-play',
+						frames: [
+							{ key: 'yanhua-1.png' },
+							{ key: 'yanhua-2.png' },
+							{ key: 'yanhua-3.png' },
+							{ key: 'yanhua-4.png' },
+							{ key: 'yanhua-5.png' },
+							{ key: 'yanhua-6.png' },
+							{ key: 'yanhua-7.png' },
+							{ key: 'yanhua-8.png' },
+							{ key: 'yanhua-9.png' },
+							{ key: 'yanhua-10.png' },
+							{ key: 'yanhua-11.png' },
+							{ key: 'yanhua-12.png' },
+							{ key: 'yanhua-13.png' },
+							{ key: 'yanhua-14.png' }
+						],
+						frameRate: 7,
+						repeat: -1 // 无限循环
+					});
+					this.yanhua.play('yanhua-play'); // 播放动画
+				}, 1000);
+			}
+
 		} else {
 			if (this.tieCat !== null) {
 				this.tieCat.destroy();
+				this.tieCat = null;
 			}
 			if (this.yanhua !== null) {
-				this.yanhua.anims.stop();
+				this.yanhua.destroy();
+				this.yanhua = null;
 			}
 			this.anims.remove('tie-play')
 			this.anims.remove('yanhua-play')
@@ -381,13 +420,7 @@ class GameScene extends Phaser.Scene {
 						this.canUpdateLeaderBoard = true;
 						this.playerCnt = 0;
 						this.closeXiCard();
-						if (this.yanhua !== null) {
-							this.yanhua.destroy();
-						}
-						if(this.tieCat != null) {
-							this.tieCat.anims.stop();
-							this.tieCat.destroy();
-						}
+						this.resolveEndAnimate();
 						break;
 					case 1:
 						// 开启点击事件
