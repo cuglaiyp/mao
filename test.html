@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        .box {
+	        width: 100px;
+	        height: 100px;
+            position: fixed;
+	        background-color: #0a53be;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.2) rotateY(0deg);
+            opacity: 0;
+            will-change: transform, opacity;
+            transition: transform 3s ease-out, opacity 1.5s ease-out;
+        }
+        .box.show {
+            transform: translate(-50%, -50%) scale(1) rotateY(720deg);
+            opacity: 1;
+        }
+	</style>
+</head>
+<body>
+<div class="box" ></div>
+<script>
+	document.addEventListener('DOMContentLoaded', () => {
+		const wrapper = document.querySelector('.box');
+		// 延迟触发动画
+		setTimeout(() => {
+			wrapper.classList.add('show');
+		}, 500); // 延迟 500ms
+	});
+
+</script>
+</body>
+</html>
