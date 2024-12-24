@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>输入用户名</title>
-	<!-- 引入Bootstrap的CSS -->
-	<link href="./assets/lib/bootstrap.min.css" rel="stylesheet">
-	<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>输入用户名</title>
+    <!-- 引入Bootstrap的CSS -->
+    <link href="./assets/lib/bootstrap.min.css" rel="stylesheet">
+    <style>
         /* 居中对齐容器 */
         body, html {
             height: 100%;
@@ -32,6 +32,8 @@
             border-radius: 5px 0 0 5px; /* 圆角处理 */
             border: 1px solid #ccc;
             padding-left: 15px; /* 让placeholder与左边框有一定的间距 */
+            height: 50px; /* 设置输入框的高度与按钮一致 */
+            box-sizing: border-box; /* 确保padding不会影响高度 */
         }
 
         .input-container button {
@@ -75,38 +77,44 @@
         .input-container input.error {
             border-color: red;
         }
-	</style>
+    </style>
 </head>
 <body>
 
 <!-- 输入框和按钮容器 -->
 <div class="input-container">
-	<input type="text" id="username" class="form-control" placeholder="请输入姓名" required />
-	<button id="submitBtn">→</button>
+    <input type="text" id="username" class="form-control" placeholder="请输入姓名" required/>
+    <button id="submitBtn">→</button>
 
-	<!-- 错误提示信息 -->
-	<div id="error-message" class="error-message" style="display: none;"></div>
+    <!-- 错误提示信息 -->
+    <div id="error-message" class="error-message" style="display: none;"></div>
 </div>
 
 <script src="config.js"></script>
 <script>
-	// 获取元素
-	const submitBtn = document.getElementById('submitBtn');
-	const usernameInput = document.getElementById('username');
-	const errorMessageDiv = document.getElementById('error-message');
+    // 获取元素
+    const submitBtn = document.getElementById('submitBtn');
+    const usernameInput = document.getElementById('username');
+    const errorMessageDiv = document.getElementById('error-message');
 
     // 监听按钮点击事件
-    submitBtn.addEventListener('click', async function() {
+    submitBtn.addEventListener('click', async function () {
         const username = usernameInput.value.trim();
         if (username) {
             // 发送请求到后端进行合法性校验
             try {
                 const judgeGameUrl = `${CONFIG.HTTP_PREFIX}/judgeName/` + username;
-                const result = await fetch(judgeGameUrl);
+                const result = await fetch(judgeGameUrl, {
+                    method: 'GET',
+                    headers: {
+                        'uuid': localStorage.getItem("uuid")  // 在请求头中加入随机数
+                    }
+                });
                 const responseData = await result.json(); // 获取响应的 JSON 数据
 
                 if (result.status === 200 && responseData.code === 0) {
                     // 名称合法，跳转到猫猫页面
+                    localStorage.setItem('uuid', responseData.uuid);
                     localStorage.setItem('maoUsername', username); // 将用户名保存在localStorage中
                     window.location.href = 'catPage.html'; // 跳转到猫猫页面
                 } else {

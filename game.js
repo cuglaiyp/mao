@@ -33,7 +33,7 @@ class GameScene extends Phaser.Scene {
         this.playerCnt = 0;
         this.playerCntContainer = null;  // 存储用户点击次数容器
         this.canUpdateLeaderBoard = false;
-        this.leaderboard = {};
+        this.leaderboard = [];
         this.leaderboardContainer = null;  // 存储排行榜容器
         this.blessButton = null;  // 用来存储按钮对象
         this.canUpdateOnlineCnt = false;
@@ -169,7 +169,7 @@ class GameScene extends Phaser.Scene {
                 let sceneInfo = res['sceneInfo'];
                 this.inProgressCats(gameInfo.progress);
                 this.leaderboard = gameInfo.player2Score;
-                this.playerCnt = this.leaderboard[this.player] || 0;
+                this.playerCnt = gameInfo.playerScore || 0;
                 this.status = sceneInfo.status;
                 this.onlineCnt = sceneInfo.onlineCnt;
                 this.textWish.innerHTML = sceneInfo.xiCardWord;
@@ -331,11 +331,12 @@ class GameScene extends Phaser.Scene {
     }
 
     updateLeaderboard() {
-        const sortedLeaderboard = Object.entries(this.leaderboard);
         let leaderboardTextContent = '';
-        sortedLeaderboard.forEach(([playerName, score], index) => {
-            leaderboardTextContent += `${index + 1}. ${playerName}: ${score} 次<br>`;
-        });
+        for (let i = 0; i < this.leaderboard.length; i++) {
+            let s = this.leaderboard[i];
+            let rank = i + 1;
+            leaderboardTextContent += `${rank}. ${s}次<br>`;
+        }
 
         this.leaderboardContainer.innerHTML = leaderboardTextContent;
     }
@@ -402,10 +403,6 @@ class GameScene extends Phaser.Scene {
                 let gameInfo = data;
                 this.leaderboard = gameInfo.player2Score;
                 this.playerCnt = gameInfo.playerScore || 0;
-                if (this.onlineCnt !== gameInfo.onlineCnt) {
-                    this.onlineCnt = gameInfo.onlineCnt;
-                    this.canUpdateOnlineCnt = true;
-                }
                 this.moveCats(gameInfo.progress);
             } else if (data.type == 2) {
                 let gameInfo = data;
@@ -558,7 +555,7 @@ class GameScene extends Phaser.Scene {
         playerCntContainer.style.position = 'absolute';
         playerCntContainer.style.top = '20px';
         playerCntContainer.style.right = '20px';
-        playerCntContainer.style.backgroundColor = '#e0e1e2';
+        playerCntContainer.style.backgroundColor = 'transparent';
         playerCntContainer.style.padding = '10px';
         playerCntContainer.style.fontSize = '16px';
 
@@ -579,7 +576,7 @@ class GameScene extends Phaser.Scene {
         onlineCntContainer.style.position = 'absolute';
         onlineCntContainer.style.top = '20px';
         onlineCntContainer.style.left = '20px';
-        onlineCntContainer.style.backgroundColor = '#e0e1e2';
+        onlineCntContainer.style.backgroundColor = 'transparent';
         onlineCntContainer.style.padding = '10px';
         onlineCntContainer.style.fontSize = '16px';
 
@@ -706,8 +703,11 @@ class GameScene extends Phaser.Scene {
         img.style.width = `${imgWidth}px`;
         img.style.height = `${imgHeight}px`;
         img.style.maxWidth = '400px';
-        // 外围容器的宽度比图片多5px，高度与图片一致
 
+        textGreeting.style.fontSize = `${Math.floor(imgWidth / 156 * 12)}px` // 156 14px
+        textWish.style.fontSize = `${Math.floor(imgWidth / 156 * 14)}px` // 156 16px
+
+        // 外围容器的宽度比图片多40px，高度与图片一致
         xiCardContainer.style.width = `${imgWidth + 40}px`;
         xiCardContainer.style.height = `${imgHeight}px`;
         // 将父容器添加到页面中（例如添加到 body 中）
