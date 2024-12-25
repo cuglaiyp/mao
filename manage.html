@@ -14,9 +14,11 @@
             margin: 0;
             background-color: #f0f0f0; /* 页面背景色 */
         }
+
         .button-container {
             text-align: center;
         }
+
         button {
             font-size: 16px;
             padding: 10px 20px;
@@ -28,6 +30,7 @@
             color: white; /* 按钮文字颜色 */
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #45a049; /* 按钮悬停时的背景色 */
         }
@@ -88,95 +91,95 @@
 
 <script src="config.js"></script>
 <script>
-	// 获取按钮元素和 Toast 元素
-	const resetBtn = document.getElementById('resetBtn');
-	const startBtn = document.getElementById('startBtn');
-	const submitBtn = document.getElementById('submitBtn'); // 提交按钮
-	const textArea = document.getElementById('textArea'); // 文本区域
-	const toast = document.getElementById('toast');
+    // 获取按钮元素和 Toast 元素
+    const resetBtn = document.getElementById('resetBtn');
+    const startBtn = document.getElementById('startBtn');
+    const submitBtn = document.getElementById('submitBtn'); // 提交按钮
+    const textArea = document.getElementById('textArea'); // 文本区域
+    const toast = document.getElementById('toast');
 
-	// 显示 Toast 的函数
-	function showToast(message) {
-		toast.textContent = message;
-		toast.classList.add('show');
-		setTimeout(() => {
-			toast.classList.remove('show');
-		}, 1000); // 3秒后自动消失
-	}
+    // 显示 Toast 的函数
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 1000); // 3秒后自动消失
+    }
 
-	// 重置按钮点击事件
-	resetBtn.addEventListener('click', () => {
-		fetch(`${CONFIG.HTTP_PREFIX}/reset`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-			.then(response => {
-				if (response.ok) {
-					console.log('重置成功');
-					showToast('重置成功');
-				} else {
-					throw new Error('重置失败');
-				}
-			})
-			.catch(error => {
-				console.error('错误:', error);
-				showToast('重置失败');
-			});
-	});
+    // 重置按钮点击事件
+    resetBtn.addEventListener('click', () => {
+        fetch(`${CONFIG.HTTP_PREFIX}/reset`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('重置成功');
+                    showToast('重置成功');
+                } else {
+                    throw new Error('重置失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                showToast('重置失败');
+            });
+    });
 
-	// 开始按钮点击事件
-	startBtn.addEventListener('click', () => {
-		fetch(`${CONFIG.HTTP_PREFIX}/start`, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		})
-			.then(response => {
-				if (response.ok) {
-					console.log('开始成功');
-					showToast('开始成功');
-				} else {
-					throw new Error('开始失败');
-				}
-			})
-			.catch(error => {
-				console.error('错误:', error);
-				showToast('开始失败');
-			});
-	});
+    // 开始按钮点击事件
+    startBtn.addEventListener('click', () => {
+        fetch(`${CONFIG.HTTP_PREFIX}/start`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('开始成功');
+                    showToast('开始成功');
+                } else {
+                    throw new Error('开始失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                showToast('开始失败');
+            });
+    });
 
-	// 提交按钮点击事件
-	submitBtn.addEventListener('click', () => {
-		const text = textArea.value.trim();
-		if (!text) {
-			showToast('文本不能为空');
-			return;
-		}
+    // 提交按钮点击事件
+    submitBtn.addEventListener('click', () => {
+        const text = textArea.value.trim();
+        if (!text) {
+            showToast('文本不能为空');
+            return;
+        }
 
-		// 发送 POST 请求
-		fetch(`${CONFIG.HTTP_PREFIX}/updateXiWords`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({ text: text })
-		})
-			.then(response => {
-				if (response.ok) {
-					console.log('提交成功');
-					showToast('提交成功');
-				} else {
-					throw new Error('提交失败');
-				}
-			})
-			.catch(error => {
-				console.error('错误:', error);
-				showToast('提交失败');
-			});
-	});
+        // 发送 POST 请求
+        fetch(`${CONFIG.HTTP_PREFIX}/updateXiWords`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({text: text})
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('提交成功');
+                    showToast('提交成功');
+                } else {
+                    throw new Error('提交失败');
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                showToast('提交失败');
+            });
+    });
 </script>
 
 </body>
