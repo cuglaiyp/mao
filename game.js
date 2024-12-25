@@ -689,21 +689,38 @@ class GameScene extends Phaser.Scene {
         img.id = 'card-image';
         img.src = './assets/images/xiCard.png';
         img.alt = '祝福图片';
+
+        // 创建祝福文字 div
+        const textGreeting = document.createElement('div');
+        textGreeting.classList.add('text-greeting');
+        textGreeting.textContent = '祝您';
+
+        const textWish = document.createElement('div');
+        textWish.classList.add('text-wish');
+        textWish.innerHTML = this.xiCardWord;
+
+        // 创建关闭按钮
+        const closeBtn = document.createElement('button');
+        closeBtn.classList.add('close-btn');
+        closeBtn.textContent = '×';
+        closeBtn.onclick = () => this.closeXiCard(); // 关闭按钮点击时调用 closeImage 函数
+
+        // 将所有元素添加到父容器中
+        xiCardContainer.appendChild(img);
+        xiCardContainer.appendChild(closeBtn);
+        xiCardContainer.appendChild(textGreeting);
+        xiCardContainer.appendChild(textWish);
+
+
+
+        document.body.appendChild(xiCardContainer);
+        // 将父容器添加到页面中（例如添加到 body 中）
+        xiCardContainer.style.visibility = 'hidden';
+        this.xiCardContainer = xiCardContainer;
+        this.textWish = textWish;
+
         img.onload = () => {
-            // 创建祝福文字 div
-            const textGreeting = document.createElement('div');
-            textGreeting.classList.add('text-greeting');
-            textGreeting.textContent = '祝您';
 
-            const textWish = document.createElement('div');
-            textWish.classList.add('text-wish');
-            textWish.innerHTML = this.xiCardWord;
-
-            // 将所有元素添加到父容器中
-            xiCardContainer.appendChild(img);
-            xiCardContainer.appendChild(closeBtn);
-            xiCardContainer.appendChild(textGreeting);
-            xiCardContainer.appendChild(textWish);
 
             // 设置图片的宽高
             const imgHeight = this.scale.height * 0.3;
@@ -719,19 +736,9 @@ class GameScene extends Phaser.Scene {
             // 外围容器的宽度比图片多40px，高度与图片一致
             xiCardContainer.style.width = `${imgWidth + 40}px`;
             xiCardContainer.style.height = `${imgHeight}px`;
-            // 将父容器添加到页面中（例如添加到 body 中）
-            xiCardContainer.style.visibility = 'hidden';
-            this.xiCardContainer = xiCardContainer;
-            this.textWish = textWish;
+
         }
 
-        // 创建关闭按钮
-        const closeBtn = document.createElement('button');
-        closeBtn.classList.add('close-btn');
-        closeBtn.textContent = '×';
-        closeBtn.onclick = () => this.closeXiCard(); // 关闭按钮点击时调用 closeImage 函数
-
-        document.body.appendChild(xiCardContainer);
 
     }
 
