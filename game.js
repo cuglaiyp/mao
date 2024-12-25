@@ -46,6 +46,7 @@ class GameScene extends Phaser.Scene {
         this.tieCat = null;
 
         this.one2TwoStage = false;
+        this.heartbeatInterval = null;
     }
 
     preload() {
@@ -106,7 +107,6 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.connectWebSocket();
         this.initStage();
     }
 
@@ -165,6 +165,9 @@ class GameScene extends Phaser.Scene {
         fetch(httpPrefix + '/init/' + this.player)
             .then(response => response.json())
             .then(res => {
+                if (this.socket == null || this.socket.readyState !== WebSocket.OPEN) {
+                    this.connectWebSocket();
+                }
                 let gameInfo = res['gameInfo'];
                 let sceneInfo = res['sceneInfo'];
                 this.inProgressCats(gameInfo.progress);
@@ -183,7 +186,6 @@ class GameScene extends Phaser.Scene {
                     this.closeXiCard();
                 }
                 this.resolveEndAnimate();
-
             })
             .catch(error => console.error('获取数据失败:', error));
     }
@@ -395,6 +397,9 @@ class GameScene extends Phaser.Scene {
 
         this.socket.onopen = (event) => {
             console.log('WebSocket is open now.');
+            if(this.status === 1) {
+                this.blessButton.disabled = false;
+            }
         };
 
         this.socket.onmessage = (event) => {
@@ -453,6 +458,17 @@ class GameScene extends Phaser.Scene {
         this.socket.onclose = (event) => {
             console.log('WebSocket connection closed.');
         };
+
+        if (this.heartbeatInterval !== null) {
+            clearInterval(intervalId)
+        }
+
+        // 启动定时器发送心跳消息
+        this.heartbeatInterval = setInterval(() => {
+        	if (this.socket.readyState === WebSocket.OPEN) {
+        		this.socket.send("ping");
+        	}
+        }, 120000);
     }
 
     onCollide() {
@@ -470,17 +486,11 @@ class GameScene extends Phaser.Scene {
     }
 
     sendBoostMessage() {
-        /*if (this.stompClient) {
-            this.stompClient.send('/app/boost', {}, this.player);
-        }*/
-        if (!this.socket || !this.socket.readyState === WebSocket.OPEN) {
-            this.connectWebSocket();
-        }
         this.socket.send(this.player);
     }
 
     resolvePointerEvent() {
-        if (this.status === 1) {
+        if (this.status === 1 && this.socket !== null && this.socket.readyState === WebSocket.OPEN) {
             this.blessButton.disabled = false;
         } else {
             this.blessButton.disabled = true;
