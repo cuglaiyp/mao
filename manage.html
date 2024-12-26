@@ -84,6 +84,7 @@
 		<textarea id="textArea" placeholder="支持自定义喜气词..."></textarea>
 		<button id="submitBtn">提交</button>
 	</div>
+	<button id="toIndexBtn">回退</button>
 </div>
 
 <!-- Toast 提示框 -->
@@ -97,6 +98,7 @@
     const submitBtn = document.getElementById('submitBtn'); // 提交按钮
     const textArea = document.getElementById('textArea'); // 文本区域
     const toast = document.getElementById('toast');
+    const toIndexBtn = document.getElementById('toIndexBtn');
 
     // 显示 Toast 的函数
     function showToast(message) {
@@ -179,6 +181,28 @@
                 console.error('错误:', error);
                 showToast('提交失败');
             });
+    });
+
+    // 开始按钮点击事件
+    toIndexBtn.addEventListener('click', () => {
+	    fetch(`${CONFIG.HTTP_PREFIX}/toIndex`, {
+		    method: 'GET',
+		    headers: {
+			    'Content-Type': 'application/json'
+		    }
+	    })
+		    .then(response => {
+			    if (response.ok) {
+				    console.log('回退成功');
+				    showToast('回退成功');
+			    } else {
+				    throw new Error('回退失败');
+			    }
+		    })
+		    .catch(error => {
+			    console.error('错误:', error);
+			    showToast('回退失败');
+		    });
     });
 </script>
 

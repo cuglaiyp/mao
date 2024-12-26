@@ -25,11 +25,7 @@ class GameScene extends Phaser.Scene {
 		this.targetCat1Y = 0;
 		this.targetCat2Y = 0;
 
-		this.player = localStorage.getItem('maoUsername');
-		if (this.player === null || this.player === undefined) {
-			window.location.href = 'index.html';
-			return;
-		}
+		this.player = null;
 		this.playerCnt = 0;
 		this.playerCntContainer = null;  // 存储用户点击次数容器
 		this.canUpdateLeaderBoard = false;
@@ -52,6 +48,7 @@ class GameScene extends Phaser.Scene {
 		this.xiaLian = null;
 
 		this.startTimestamp = 0;
+		this.isVaild = false; // 是否合法，不合法需要退回到index
 	}
 
 	preload() {
@@ -116,6 +113,11 @@ class GameScene extends Phaser.Scene {
 	}
 
 	initStage() {
+		this.player = localStorage.getItem('maoUsername');
+		if (this.player === null || this.player === undefined) {
+			window.location.href = 'index.html';
+			return;
+		}
 		this.setLayout();
 		this.resetCats();
 		// 监听窗口尺寸变化
@@ -183,18 +185,32 @@ class GameScene extends Phaser.Scene {
 				this.status = sceneInfo.status;
 				this.onlineCnt = sceneInfo.onlineCnt;
 				this.textWish.innerHTML = sceneInfo.xiCardWord;
+				this.isValid = sceneInfo.isValid;
+				console.log("fetchInit" + this.isValid)
 				this.updateLeaderboard();
 				this.updatePlayerCntText();
 				this.updateOnlineCntText();
 				this.resolvePointerEvent();
-				if (this.status === 2) {
-					this.showXiCard();
-				} else {
-					this.closeXiCard();
-				}
+				this.resolveXiCard();
+				this.resolvePlayer();
 				this.resolveEndAnimate();
 			})
 			.catch(error => console.error('获取数据失败:', error));
+	}
+
+	resolvePlayer() {
+		if (!this.isValid) {
+			localStorage.clear();
+			window.location.href = 'index.html';
+		}
+	}
+
+	resolveXiCard() {
+		if (this.status === 2) {
+			this.showXiCard();
+		} else {
+			this.closeXiCard();
+		}
 	}
 
 	resolveEndAnimate() {
@@ -414,21 +430,22 @@ class GameScene extends Phaser.Scene {
 
 		this.socket.onmessage = (event) => {
 			let data = JSON.parse(event.data);
-			if (data.type == 0) {
+			if (data.type === 0) { // 游戏内容消息
 				let gameInfo = data;
 				this.leaderboard = gameInfo.player2Score;
 				this.playerCnt = gameInfo.playerScore || 0;
 				this.moveCats(gameInfo.progress);
-			} else if (data.type == 2) {
+			} else if (data.type === 2) { // 在线人数消息
 				let gameInfo = data;
 				if (this.onlineCnt !== gameInfo.onlineCnt) {
 					this.onlineCnt = gameInfo.onlineCnt;
 					this.canUpdateOnlineCnt = true;
 				}
-			} else if (data.type == 1) {
+			} else if (data.type === 1) { // 控制消息
 				let sceneInfo = data;
 				this.status = sceneInfo.status;
 				this.startTimestamp = sceneInfo.startTimestamp;
+				this.isValid = sceneInfo.isValid;
 				this.resolvePointerEvent();
 				switch (this.status) {
 					case 0:
@@ -440,6 +457,7 @@ class GameScene extends Phaser.Scene {
 						this.playerCnt = 0;
 						this.closeXiCard();
 						this.resolveEndAnimate();
+						this.resolvePlayer();
 						break;
 					case 1:
 						// 开启点击事件
