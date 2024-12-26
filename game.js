@@ -468,6 +468,7 @@ class GameScene extends Phaser.Scene {
 						this.resolveEndAnimate();
 						this.resolvePlayer();
                         this.blessButton.innerHTML = "祝福+1";
+                        this.blessButton.classList.remove('pulsing-button');
 						break;
 					case 1:
 						// 开启点击事件
