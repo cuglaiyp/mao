@@ -486,7 +486,7 @@ class GameScene extends Phaser.Scene {
         // 弹出喜卡
         setTimeout(() => {
             this.showXiCard();
-        }, 3000);
+        }, 4000);
 
 
     }
