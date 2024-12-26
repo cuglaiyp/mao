@@ -47,7 +47,6 @@ class GameScene extends Phaser.Scene {
 		this.shangLian = null;
 		this.xiaLian = null;
 
-		this.startTimestamp = 0;
 		this.isVaild = false; // 是否合法，不合法需要退回到index
 	}
 
@@ -364,7 +363,18 @@ class GameScene extends Phaser.Scene {
 	}
 
 	updateLeaderboard() {
-		this.leaderboardContainer.innerHTML = this.leaderboard;
+        let finalResult = "";
+        if (this.leaderboard !== null && this.leaderboard !== "") {
+            let items = this.leaderboard.split(';');
+            if (items.length >= 0) {
+                let result = items.map((item, index) => {
+                    return `${index + 1}.${item}次`;  // 添加序号
+                });
+                finalResult = result.join('<br>');
+            }
+        }
+        // 将结果数组连接成一个字符串
+		this.leaderboardContainer.innerHTML = finalResult;
 	}
 
 	updatePlayerCntText() {
@@ -444,7 +454,6 @@ class GameScene extends Phaser.Scene {
 			} else if (data.type === 1) { // 控制消息
 				let sceneInfo = data;
 				this.status = sceneInfo.status;
-				this.startTimestamp = sceneInfo.startTimestamp;
 				this.isValid = sceneInfo.isValid;
 				this.resolvePointerEvent();
 				switch (this.status) {
@@ -458,11 +467,13 @@ class GameScene extends Phaser.Scene {
 						this.closeXiCard();
 						this.resolveEndAnimate();
 						this.resolvePlayer();
+                        this.blessButton.innerHTML = "祝福+1";
 						break;
 					case 1:
 						// 开启点击事件
 						// 弹出游戏开始提示
 						// 示例：调用 showToast 函数显示提示
+                        this.showToast('游戏开始', 500);
 						break;
 					case 2:
 						// 关闭点击事件
@@ -522,16 +533,7 @@ class GameScene extends Phaser.Scene {
 
 	resolvePointerEvent() {
 		if (this.status === 1 && this.socket !== null && this.socket.readyState === WebSocket.OPEN) {
-			const delay = this.startTimestamp - Date.now();
-			if (delay > 0) {
-				// 设置定时事件：在目标时间点执行
-				setTimeout(() => {
-					this.blessButton.disabled = false;
-					this.showToast('游戏开始', 500);
-				}, delay);
-			} else {
 				this.blessButton.disabled = false;
-			}
 		} else {
 			this.blessButton.disabled = true;
 		}
