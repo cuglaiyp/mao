@@ -723,7 +723,7 @@ class GameScene extends Phaser.Scene {
 
 
             // 设置图片的宽高
-            const imgHeight = this.scale.height * 0.3;
+            const imgHeight = this.scale.height * 0.25;
             // 计算图片的高度，保持图片的宽高比例
             const imgWidth = imgHeight * (img.naturalWidth / img.naturalHeight);
             // 设置图片的宽高
