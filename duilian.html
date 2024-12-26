@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+        /* 设置图片 */
+        .duilian {
+            object-fit: cover; /* 保持图片比例 */
+            clip-path: inset(0 0 100% 0); /* 初始时，图片下半部分隐藏 */
+            transition: clip-path 2s ease-in-out; /* 过渡效果 */
+        }
+
+        /* 页面加载时，渐显效果 */
+        .duilian.loaded {
+            clip-path: inset(0 0 0 0); /* 图片完全显示 */
+        }
+
+
+	</style>
+</head>
+<body>
+
+<script>
+    // 1. 创建图片元素
+    const img = document.createElement('img');
+    img.src = './assets/images/shanglian.png';  // 替换为您的图片路径
+    img.alt = 'Image';
+    img.classList.add('duilian');
+    // 2. 获取屏幕的高度，设置图片的高度为屏幕一半，宽度等比缩小
+    const screenHeight = window.innerHeight; // 获取屏幕高度
+    const screenWidth = window.innerWidth; // 获取屏幕宽度
+
+    const imgHeight = screenHeight * 0.4;
+    // 计算图片的高度，保持图片的宽高比例
+    const imgWidth = imgHeight * (img.naturalWidth / img.naturalHeight);
+    img.style.height = `${imgHeight}px`; // 设置图片的高度为屏幕的一半
+    img.style.width = `${imgWidth}px`;
+    // 2. 将图片添加到页面的 body 或指定位置
+    document.body.appendChild(img); // 或者可以选择其他位置，如 document.getElementById('someElement').appendChild(img);
+    setTimeout(() => {
+        img.classList.add('loaded'); // 启动过渡效果，逐渐显示图片
+    }, 1000);
+    //
+</script>
+
+</body>
+</html>

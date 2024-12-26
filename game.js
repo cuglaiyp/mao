@@ -47,6 +47,9 @@ class GameScene extends Phaser.Scene {
 
         this.one2TwoStage = false;
         this.heartbeatInterval = null;
+
+        this.shangLian = null;
+        this.xiaLian = null;
     }
 
     preload() {
@@ -123,6 +126,7 @@ class GameScene extends Phaser.Scene {
         this.createBlessButton();
         this.createOnlineCnt();
         this.createXiCard();
+        this.createDuiLian();
         this.fetchInit();
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -250,6 +254,7 @@ class GameScene extends Phaser.Scene {
                         repeat: -1 // 无限循环
                     });
                     this.yanhua.play('yanhua-play'); // 播放动画
+                    this.showDuiLian();
                 }, 1000);
             }
 
@@ -264,6 +269,7 @@ class GameScene extends Phaser.Scene {
             }
             this.anims.remove('tie-play')
             this.anims.remove('yanhua-play')
+            this.closeDuiLian();
         }
     }
 
@@ -397,7 +403,7 @@ class GameScene extends Phaser.Scene {
 
         this.socket.onopen = (event) => {
             console.log('WebSocket is open now.');
-            if(this.status === 1) {
+            if (this.status === 1) {
                 this.blessButton.disabled = false;
             }
         };
@@ -465,9 +471,9 @@ class GameScene extends Phaser.Scene {
 
         // 启动定时器发送心跳消息
         this.heartbeatInterval = setInterval(() => {
-        	if (this.socket.readyState === WebSocket.OPEN) {
-        		this.socket.send("ping");
-        	}
+            if (this.socket.readyState === WebSocket.OPEN) {
+                this.socket.send("ping");
+            }
         }, 120000);
     }
 
@@ -534,7 +540,7 @@ class GameScene extends Phaser.Scene {
         leaderboardContainer.style.position = 'absolute';
         leaderboardContainer.style.bottom = '20px'; // 距离底部20px
         leaderboardContainer.style.left = '20px'; // 距离左侧20px
-        leaderboardContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'; // 半透明白色背景
+        leaderboardContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.5)'; // 半透明白色背景
         leaderboardContainer.style.borderRadius = '12px'; // 圆角
         leaderboardContainer.style.padding = '15px';
         leaderboardContainer.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)'; // 柔和的阴影
@@ -684,53 +690,68 @@ class GameScene extends Phaser.Scene {
         img.src = './assets/images/xiCard.png';
         img.alt = '祝福图片';
 
+        // 创建祝福文字 div
+        const textGreeting = document.createElement('div');
+        textGreeting.classList.add('text-greeting');
+        textGreeting.textContent = '祝您';
+
+        const textWish = document.createElement('div');
+        textWish.classList.add('text-wish');
+        textWish.innerHTML = this.xiCardWord;
+
         // 创建关闭按钮
         const closeBtn = document.createElement('button');
         closeBtn.classList.add('close-btn');
         closeBtn.textContent = '×';
         closeBtn.onclick = () => this.closeXiCard(); // 关闭按钮点击时调用 closeImage 函数
 
-        // 创建祝福文字 div
-        const textGreeting = document.createElement('div');
-        textGreeting.classList.add('text-greeting');
-        textGreeting.textContent = '祝您';
-        const textWish = document.createElement('div');
-
-        textWish.classList.add('text-wish');
-        textWish.innerHTML = this.xiCardWord;
         // 将所有元素添加到父容器中
-
         xiCardContainer.appendChild(img);
         xiCardContainer.appendChild(closeBtn);
         xiCardContainer.appendChild(textGreeting);
         xiCardContainer.appendChild(textWish);
-        // 设置图片的宽度为视口宽度的60%
-        // 设置图片的宽高
-        const imgWidth = this.scale.width * 0.4;
-        // 计算图片的高度，保持图片的宽高比例
-        const imgHeight = imgWidth * (img.naturalHeight / img.naturalWidth);
-        // 设置图片的宽高
-        img.style.width = `${imgWidth}px`;
-        img.style.height = `${imgHeight}px`;
-        img.style.maxWidth = '400px';
 
-        textGreeting.style.fontSize = `${Math.floor(imgWidth / 156 * 12)}px` // 156 14px
-        textWish.style.fontSize = `${Math.floor(imgWidth / 156 * 14)}px` // 156 16px
 
-        // 外围容器的宽度比图片多40px，高度与图片一致
-        xiCardContainer.style.width = `${imgWidth + 40}px`;
-        xiCardContainer.style.height = `${imgHeight}px`;
+
+        document.body.appendChild(xiCardContainer);
         // 将父容器添加到页面中（例如添加到 body 中）
         xiCardContainer.style.visibility = 'hidden';
-        document.body.appendChild(xiCardContainer);
-
         this.xiCardContainer = xiCardContainer;
         this.textWish = textWish;
+
+        img.onload = () => {
+
+
+            // 设置图片的宽高
+            const imgHeight = this.scale.height * 0.3;
+            // 计算图片的高度，保持图片的宽高比例
+            const imgWidth = imgHeight * (img.naturalWidth / img.naturalHeight);
+            // 设置图片的宽高
+            img.style.width = `${imgWidth}px`;
+            img.style.height = `${imgHeight}px`;
+
+            textGreeting.style.fontSize = `${imgWidth / 145 * 12}px` // 156 14px
+            textWish.style.fontSize = `${imgWidth / 145 * 14}px` // 156 16px
+
+            // 外围容器的宽度比图片多40px，高度与图片一致
+            xiCardContainer.style.width = `${imgWidth + 40}px`;
+            xiCardContainer.style.height = `${imgHeight}px`;
+
+        }
+
+
     }
 
     closeXiCard() {
         this.xiCardContainer.style.visibility = 'hidden';
         this.xiCardContainer.classList.remove('show');
+    }
+
+    closeDuiLian() {
+        this.shangLian.style.visibility = 'hidden';
+        this.xiaLian.style.visibility ='hidden';
+        this.shangLian.classList.remove('loaded');
+        this.xiaLian.classList.remove('loaded');
     }
 
     showXiCard() {
@@ -742,7 +763,53 @@ class GameScene extends Phaser.Scene {
             });
         }
     }
+
+    showDuiLian() {
+        this.shangLian.style.visibility = 'visible';
+        this.xiaLian.style.visibility ='visible';
+        requestAnimationFrame(() => {
+            this.shangLian.classList.add('loaded'); // 启动过渡效果，逐渐显示图片
+            this.xiaLian.classList.add('loaded'); // 启动过渡效果，逐渐显示图片
+        });
+    }
+
+    createDuiLian() {
+        // 1. 创建图片元素
+        const shangLian = document.createElement('img');
+        shangLian.src = './assets/images/shanglian.png';  // 替换为您的图片路径
+        shangLian.alt = 'Image';
+        shangLian.classList.add('duilian');
+        const shangLianHeight = this.scale.height * 0.3;
+        // 计算图片的高度，保持图片的宽高比例
+        const shangLianWidth = shangLianHeight * (shangLian.naturalWidth / shangLian.naturalHeight);
+        shangLian.style.height = `${shangLianHeight}px`; // 设置图片的高度为屏幕的一半
+        shangLian.style.width = `${shangLianWidth}px`;
+        shangLian.style.top = `${this.endCatY - 70}px`;
+        shangLian.style.right = '5px';
+
+
+        const xiaLian = document.createElement('img');
+        xiaLian.src = './assets/images/xialian.png';  // 替换为您的图片路径
+        xiaLian.alt = 'Image';
+        xiaLian.classList.add('duilian');
+        xiaLian.style.height = shangLian.style.height; // 设置图片的高度为屏幕的一半
+        xiaLian.style.width = shangLian.style.width;
+
+        xiaLian.style.top = `${this.endCatY - 70}px`;
+        xiaLian.style.left = '5px';
+
+        this.shangLian = shangLian;
+        this.xiaLian = xiaLian;
+        // 2. 将图片添加到页面的 body 或指定位置
+        document.body.appendChild(shangLian);
+        document.body.appendChild(xiaLian);
+    }
 }
+
+document.addEventListener('dblclick', function (event) {
+    event.preventDefault();  // 禁用双击放大
+}, { passive: false });
+
 
 // 配置 Phaser 游戏实例
 const config = {

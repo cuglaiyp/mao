@@ -72,6 +72,7 @@
 			color: #e0c000; /* 黄色 */
 			font-weight: bold;
 			text-align: center;
+            white-space: nowrap; /* 禁止换行 */
 		}
 
 		/* 关闭按钮 */
@@ -92,6 +93,19 @@
 			outline: none;
 			border: none;
 		}
+
+        /* 设置图片 */
+        .duilian {
+            position: fixed; /* 使用绝对定位 */
+            object-fit: cover; /* 保持图片比例 */
+            clip-path: inset(0 0 100% 0); /* 初始时，图片下半部分隐藏 */
+            transition: clip-path 2s ease-in-out; /* 过渡效果 */
+        }
+
+        /* 页面加载时，渐显效果 */
+        .duilian.loaded {
+            clip-path: inset(0 0 0 0); /* 图片完全显示 */
+        }
 	</style>
 </head>
 <body>
