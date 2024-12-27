@@ -185,7 +185,6 @@ class GameScene extends Phaser.Scene {
 				this.onlineCnt = sceneInfo.onlineCnt;
 				this.textWish.innerHTML = sceneInfo.xiCardWord;
 				this.isValid = sceneInfo.isValid;
-				console.log("fetchInit" + this.isValid)
 				this.updateLeaderboard();
 				this.updatePlayerCntText();
 				this.updateOnlineCntText();
@@ -851,13 +850,18 @@ document.addEventListener('dblclick', function(event) {
 
 // 配置 Phaser 游戏实例
 const config = {
-	type: Phaser.AUTO, width: window.innerWidth, height: window.innerHeight, physics: {
+	type: Phaser.AUTO, width: window.innerWidth, height: window.innerHeight,
+	physics: {
 		default: 'arcade', arcade: {
 			gravity: { y: 0 }, debug: false
 		}
-	}, scene: GameScene, scale: {
-		mode: Phaser.Scale.RESIZE
-	}, backgroundColor: '#e0e1e2'
+	},
+	scene: GameScene,
+	scale: {
+		mode: Phaser.Scale.RESIZE, // 替代为新版的用法
+		autoCenter: Phaser.Scale.CENTER_BOTH
+	},
+	backgroundColor: '#e0e1e2'
 };
 
 const game = new Phaser.Game(config);
