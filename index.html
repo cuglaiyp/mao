@@ -116,7 +116,7 @@
                     // 名称合法，跳转到猫猫页面
                     localStorage.setItem('uuid', responseData.uuid);
                     localStorage.setItem('maoUsername', username); // 将用户名保存在localStorage中
-                    window.location.href = 'catPage.html'; // 跳转到猫猫页面
+                    window.location.href = 'catpage.html'; // 跳转到猫猫页面
                 } else {
                     // 名称非法，显示错误信息
                     const errorMsg = responseData.msg || '名称已被占用'; // 如果没有 msg 字段，则使用默认提示
