@@ -2,21 +2,28 @@
 <html lang="zh">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>祝福单</title>
 	<style>
-        body {
+        /* 确保 body 和 html 没有额外的外边距或填充 */
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* 禁用横向滚动条 */
+        }
+
+        body {
             background-color: #f4f4f4;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            height: 100vh;
             box-sizing: border-box;
         }
 
+        /* 标题样式 */
         h1 {
             color: #fff;
             background-color: #d9534f;
@@ -24,23 +31,26 @@
             width: 100%;
             text-align: center;
             margin: 0;
-            font-size: 24px;
+            font-size: 20px;
             box-sizing: border-box;
         }
 
         #table-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             width: 100%;
+            max-width: 800px; /* 确保标题和表格宽度一致 */
             padding: 10px;
-            max-width: 800px; /* 最大宽度为800px */
+            box-sizing: border-box;
         }
 
         table {
             width: 100%;
+            max-width: 800px; /* 最大宽度为800px */
             border-collapse: collapse;
             text-align: center;
-            margin-top: 10px;  /* 为了让表格紧跟标题 */
+            margin-top: 10px;
         }
 
         th, td {
@@ -54,25 +64,18 @@
         }
 
         td {
-            background-color: #f9e2e2; /* 更浅的红色背景 */
+            background-color: #f9e2e2;
         }
 
-        /* 自适应调整表格列宽 */
         th, td {
             min-width: 150px;
-        }
-
-        /* 表格容器样式 */
-        .table-wrapper {
-            width: 100%;
-            max-width: 800px; /* 最大宽度为800px */
         }
 
 	</style>
 </head>
 <body>
-<h1 id="title">祝福单</h1>
-<div id="table-container" class="table-wrapper">
+<div id="table-container">
+	<h1 id="title">祝福单</h1>
 	<table id="score-table">
 		<thead>
 		<tr>
@@ -89,73 +92,48 @@
 <script src="config.js"></script>
 <script>
 
-	// 假设从后端接口获取数据
-	async function fetchScores() {
-		try {
-			const response = await fetch(`${CONFIG.HTTP_PREFIX}/playerPoint`); // 后端接口 URL
-			const data = await response.json(); // 假设返回的 JSON 是 { "user1": 100, "user2": 200 }
+    // 假设从后端接口获取数据
+    async function fetchScores() {
+        try {
+            const response = await fetch(`${CONFIG.HTTP_PREFIX}/playerPoint`); // 后端接口 URL
+            const data = await response.json(); // 假设返回的 JSON 是 { "user1": 100, "user2": 200 }
 
-			if (data) {
-				populateTable(data);
-			} else {
-				console.log('没有返回数据');
-			}
-		} catch (error) {
-			console.error('获取数据失败:', error);
-		}
-	}
+            if (data) {
+                populateTable(data);
+            } else {
+                console.log('没有返回数据');
+            }
+        } catch (error) {
+            console.error('获取数据失败:', error);
+        }
+    }
 
-	// 动态填充表格
-	function populateTable(data) {
-		const tableBody = document.querySelector('#score-table tbody');
-		tableBody.innerHTML = ''; // 清空现有表格内容
+    // 动态填充表格
+    function populateTable(data) {
+        const tableBody = document.querySelector('#score-table tbody');
+        tableBody.innerHTML = ''; // 清空现有表格内容
 
-		// 遍历 data 并插入表格
-		for (const [username, score] of Object.entries(data)) {
-			const row = document.createElement('tr');
-			const cellUsername = document.createElement('td');
-			const cellScore = document.createElement('td');
+        // 遍历 data 并插入表格
+        for (const [username, score] of Object.entries(data)) {
+            const row = document.createElement('tr');
+            const cellUsername = document.createElement('td');
+            const cellScore = document.createElement('td');
 
-			cellUsername.textContent = username;
-			cellScore.textContent = score;
+            cellUsername.textContent = username;
+            cellScore.textContent = score;
 
-			row.appendChild(cellUsername);
-			row.appendChild(cellScore);
+            row.appendChild(cellUsername);
+            row.appendChild(cellScore);
 
-			tableBody.appendChild(row);
-		}
-	}
+            tableBody.appendChild(row);
+        }
+    }
 
-	// 根据屏幕的宽高比动态调整表格和标题的显示
-	function adjustLayout() {
-		const tableWrapper = document.querySelector('.table-wrapper');
-		const title = document.getElementById('title');
-		const isLandscape = window.innerWidth > window.innerHeight;
+    // 页面加载完成后请求数据
+    window.onload = () => {
+        fetchScores();
+    };
 
-		// 横屏模式：最大宽度为 800px
-		if (isLandscape) {
-			// 表格和标题都居中
-			tableWrapper.style.width = '100%';
-			tableWrapper.style.maxWidth = '800px';
-			title.style.maxWidth = '800px'; // 保证标题背景色宽度与表格一致
-			title.style.margin = '0 auto';  // 居中显示标题
-		} else {
-			// 竖屏模式：表格宽度占满全屏
-			tableWrapper.style.width = '100%';
-			tableWrapper.style.maxWidth = 'none';
-			title.style.maxWidth = 'none';
-			title.style.margin = '0';  // 竖屏模式下，标题背景色不限制
-		}
-	}
-
-	// 页面加载完成后请求数据并调整布局
-	window.onload = () => {
-		fetchScores();
-		adjustLayout();
-	};
-
-	// 监听窗口大小变化，动态调整布局
-	window.onresize = adjustLayout;
 </script>
 </body>
 </html>
