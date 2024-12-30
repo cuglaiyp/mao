@@ -51,7 +51,7 @@ class GameScene extends Phaser.Scene {
 
         this.circles = [];    // 存储所有的圆形对象
         this.radius = 30;     // 圆形半径
-        this.duration = 1200; // 动画持续时间，单位为毫秒
+        this.duration = 1500; // 动画持续时间，单位为毫秒
         this.createCircleInterval = 150; // 创建圆形的间隔时间（毫秒）
         this.maxCircles = 3;  // 最大圆形数量
         this.createCircleTimer = null;   // 存储定时器事件
@@ -331,7 +331,7 @@ class GameScene extends Phaser.Scene {
             }
             if (this.yanhua === null) {
                 setTimeout(() => {
-                    this.yanhua = this.add.sprite(this.endCatX, this.cat1.y - 150, 'yanhua-1');
+                    this.yanhua = this.add.sprite(this.endCatX, this.endCatY - 150, 'yanhua-1');
                     this.anims.create({
                         key: 'yanhua-play',
                         frames: [
@@ -490,7 +490,7 @@ class GameScene extends Phaser.Scene {
     }
 
     inProgressCats(progress) {
-        if (this.status == 2) {
+        if (this.status === 2) {
             this.resolveEndAnimate();
             return;
         }
@@ -824,7 +824,7 @@ class GameScene extends Phaser.Scene {
 
         // 使用动画使 '+1' 元素向上移动并渐变消失
         setTimeout(() => {
-            plusOne.style.bottom = '80px';  // 向上移动
+            plusOne.style.bottom = '120px';  // 向上移动
             plusOne.style.opacity = '0';    // 渐变消失
         }, 10); // 等待元素添加后执行动画
 
