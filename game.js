@@ -51,12 +51,12 @@ class GameScene extends Phaser.Scene {
 
         this.circles = [];    // 存储所有的圆形对象
         this.radius = 30;     // 圆形半径
-        this.duration = 2000; // 动画持续时间，单位为毫秒
-        this.createCircleInterval = 500; // 创建圆形的间隔时间（毫秒）
+        this.duration = 1200; // 动画持续时间，单位为毫秒
+        this.createCircleInterval = 150; // 创建圆形的间隔时间（毫秒）
         this.maxCircles = 3;  // 最大圆形数量
         this.createCircleTimer = null;   // 存储定时器事件
         this.createdCircles = 0;
-        this.bonus = ["祝福+9", "祝福+6", "祝福+3"]
+        this.bonus = ["祝福\n+9", "祝福\n+6", "祝福\n+3"]
     }
 
     preload() {
@@ -162,7 +162,7 @@ class GameScene extends Phaser.Scene {
 
         // 根据圆形的直径动态计算字体大小
         const diameter = 2 * radius;
-        const fontSize = Math.floor(diameter * 0.2); // 字体大小为圆形直径的 40%
+        const fontSize = Math.floor(diameter * 0.3); // 字体大小为圆形直径的 40%
 
         // 随机生成圆形的横坐标
         const x = Phaser.Math.Between(50, this.scale.width - 50);  // 横坐标范围，避免圆形溢出屏幕
@@ -194,9 +194,10 @@ class GameScene extends Phaser.Scene {
 
         // 监听点击事件，点击后使圆形消失
         circle.on('pointerdown', () => {
-            circle.setAlpha(0);  // 点击后将精灵的透明度设置为 0，使其消失\
-            //发送消息
-            this.sendBoostMessage(text.text.slice(3, text.text.length) + this.player);
+	        circle.setInteractive(false);  // 取消交互，精灵不会再响应点击事件
+	        circle.setAlpha(0);  // 点击后将精灵的透明度设置为 0，使其消失\
+	        //发送消息
+	        this.sendBoostMessage(text.text.slice(-1) + this.player);
         });
 
         // 存储圆形信息以便更新动画
