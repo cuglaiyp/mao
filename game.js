@@ -51,8 +51,8 @@ class GameScene extends Phaser.Scene {
 
         this.circles = [];    // 存储所有的圆形对象
         this.radius = 30;     // 圆形半径
-        this.duration = 1500; // 动画持续时间，单位为毫秒
-        this.createCircleInterval = 150; // 创建圆形的间隔时间（毫秒）
+        this.duration = 2000; // 动画持续时间，单位为毫秒
+        this.createCircleInterval = 200; // 创建圆形的间隔时间（毫秒）
         this.maxCircles = 3;  // 最大圆形数量
         this.createCircleTimer = null;   // 存储定时器事件
         this.createdCircles = 0;
